@@ -1,0 +1,170 @@
+HW T 4 01:18 10/02/25 
+
+Code 
+
+CREATE DATABASE LibraryManagement;
+
+USE LibraryManagement;
+
+
+
+CREATE TABLE authors (
+    author_id INT AUTO_INCREMENT PRIMARY KEY,
+    author_name VARCHAR(255) NOT NULL
+);
+
+
+CREATE TABLE genres (
+    genre_id INT AUTO_INCREMENT PRIMARY KEY,
+    genre_name VARCHAR(255) NOT NULL
+);
+
+
+CREATE TABLE books (
+    book_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    publication_year YEAR NOT NULL,
+    author_id INT,
+    genre_id INT,
+    FOREIGN KEY (author_id) REFERENCES authors(author_id),
+    FOREIGN KEY (genre_id) REFERENCES genres(genre_id)
+);
+
+
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE
+);
+
+
+CREATE TABLE borrowed_books (
+    borrow_id INT AUTO_INCREMENT PRIMARY KEY,
+    book_id INT,
+    user_id INT,
+    borrow_date DATE,
+    return_date DATE,
+    FOREIGN KEY (book_id) REFERENCES books(book_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+
+INSERT INTO authors (author_name) VALUES ('Тарас Шевченко'), ('Ліна Костенко');
+
+INSERT INTO genres (genre_name) VALUES ('Поезія'), ('Роман');
+
+INSERT INTO books (title, publication_year, author_id, genre_id)
+VALUES ('Кобзар', 1840, 1, 1),
+       ('Маруся Чурай', 1979, 2, 2);
+
+INSERT INTO users (username, email)
+VALUES ('ivan_petrenko', 'ivan@email.com'),
+       ('olena_honchar', 'olena@email.com');
+
+INSERT INTO borrowed_books (book_id, user_id, borrow_date, return_date)
+VALUES (1, 1, '2024-02-01', '2024-02-15'),
+       (2, 2, '2024-02-05', '2024-02-20');
+
+
+USE store_database;
+
+SHOW COLUMNS FROM suppliers; 
+
+SHOW COLUMNS FROM products;
+
+SHOW COLUMNS FROM orders;
+
+
+SHOW COLUMNS FROM orders;
+
+SHOW COLUMNS FROM products;
+
+SHOW COLUMNS FROM suppliers; 
+
+SHOW COLUMNS FROM shippers;
+
+
+
+USE store_database;
+
+SELECT 
+    orders.id AS OrderID,
+    orders.date AS OrderDate,
+    customers.id AS CustomerID,
+    customers.name AS CustomerName,
+    orders.employee_id AS EmployeeID,
+    shippers.id AS ShipperID,
+    shippers.name AS ShipperName,
+    order_details.product_id AS ProductID,
+    order_details.Quantity,
+    products.name AS ProductName,
+    categories.name AS CategoryName,
+    suppliers.id AS SupplierID,
+    suppliers.name AS SupplierName
+FROM 
+    orders
+INNER JOIN 
+    customers ON orders.customer_id = customers.id
+INNER JOIN 
+    shippers ON orders.shipper_id = shippers.id
+INNER JOIN 
+    order_details ON orders.id = order_details.order_id
+INNER JOIN 
+    products ON order_details.product_id = products.id
+INNER JOIN 
+    categories ON products.category_id = categories.id
+INNER JOIN 
+    suppliers ON products.supplier_id = suppliers.id;
+
+
+
+ SELECT COUNT(*) as total_rows
+FROM orders
+INNER JOIN customers ON orders.customer_id = customers.id
+INNER JOIN shippers ON orders.shipper_id = shippers.id
+INNER JOIN order_details ON orders.id = order_details.order_id
+INNER JOIN products ON order_details.product_id = products.id
+INNER JOIN categories ON products.category_id = categories.id
+INNER JOIN suppliers ON products.supplier_id = suppliers.id;
+
+
+SELECT COUNT(*) as total_rows
+FROM orders
+LEFT JOIN customers ON orders.customer_id = customers.id
+LEFT JOIN shippers ON orders.shipper_id = shippers.id
+INNER JOIN order_details ON orders.id = order_details.order_id
+INNER JOIN products ON order_details.product_id = products.id
+INNER JOIN categories ON products.category_id = categories.id
+INNER JOIN suppliers ON products.supplier_id = suppliers.id;
+
+
+SELECT *
+FROM orders
+INNER JOIN customers ON orders.customer_id = customers.id
+INNER JOIN shippers ON orders.shipper_id = shippers.id
+INNER JOIN order_details ON orders.id = order_details.order_id
+INNER JOIN products ON order_details.product_id = products.id
+INNER JOIN categories ON products.category_id = categories.id
+INNER JOIN suppliers ON products.supplier_id = suppliers.id
+WHERE orders.employee_id > 3 AND orders.employee_id <= 10;
+
+
+SELECT 
+    categories.name AS CategoryName,
+    COUNT(*) as row_count,
+    AVG(order_details.Quantity) as avg_quantity
+FROM orders
+INNER JOIN customers ON orders.customer_id = customers.id
+INNER JOIN shippers ON orders.shipper_id = shippers.id
+INNER JOIN order_details ON orders.id = order_details.order_id
+INNER JOIN products ON order_details.product_id = products.id
+INNER JOIN categories ON products.category_id = categories.id
+INNER JOIN suppliers ON products.supplier_id = suppliers.id
+GROUP BY categories.name
+HAVING AVG(order_details.Quantity) > 21
+ORDER BY row_count DESC
+LIMIT 4 OFFSET 1;
+
+
+
+
